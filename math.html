@@ -56,8 +56,27 @@ for(let i=1;i<=5;i++){
 {let mid=i+6,top=i+2,v=2*mid-top;N(8,'梯形中線長 '+mid+'、上底長 '+top+'，下底長為何？',v,'中線為兩底平均。','2×'+mid+'−'+top+'='+v+'。')}
 {let a=i+6,b=i+3,v=2*(a+b);N(8,'平行四邊形一邊 '+a+'，鄰邊比它短 '+(a-b)+'，周長是多少？',v,'先找另一邊，再乘 2。','2×('+a+'+'+b+')='+v+'。')}
 }
+
+// 段考／會考素養加強：每章最後五題改為跨步驟原創應用題
+function exam(u,n,text,answer,hint,why){
+ const a=Number(answer),opts=[a,a+2,a-2,a+5].map(String);
+ if(new Set(opts).size!==4)throw Error("Exam choices "+text);
+ bank[u][15+n]={q:text,a:String(a),options:opts,h:hint,why};
+}
+for(let i=0;i<5;i++){
+{let x=i+6,fee=i+12,cost=3*x+fee;exam(0,i,'書店每本筆記本 x 元，3 本加上 '+fee+' 元運費，總價是 3x+'+fee+'。若 x='+x+'，應付多少元？',cost,'先代入 x，再計算運費。','3×'+x+'+'+fee+'='+cost+' 元。')}
+{let a=i+4,b=i+2,v=2*a*b;exam(1,i,'長方形花圃對角線長 '+(5*a)+' 公尺，寬 '+(3*a)+' 公尺。若沿兩條對角線鋪設步道，兩條步道總長比花圃周長少多少公尺？',2*(3*a+4*a)-2*(5*a),'先用 3-4-5 求長，再比周長與兩條對角線總長。','長為 '+(4*a)+'；周長 '+(14*a)+'，兩對角線總長 '+(10*a)+'；兩者差 '+(4*a)+' 公尺。')}
+{let a=i+2,b=i+5;let prod=a*b;exam(2,i,'教室地板面積可寫成 x²+'+(a+b)+'x+'+prod+'。若長、寬皆為 x 加上一個整數，且長比寬多 '+(b-a)+'，較長那邊加上的整數是多少？',b,'因式分解面積式，並比較兩個常數。','x²+'+(a+b)+'x+'+prod+'=(x+'+a+')(x+'+b+')，較大常數是 '+b+'。')}
+{let a=i+3,b=a+2,area=a*b;exam(3,i,'一塊長方形菜園長比寬多 2 公尺，面積 '+area+' 平方公尺。菜園的寬是多少公尺？',a,'令寬為 x，長為 x+2，列 x(x+2)='+area+'。','x²+2x−'+area+'=0，可分解 (x−'+a+')(x+'+b+')=0；寬取正值 '+a+'。')}
+{let n=5+i,base=60+2*i,high=80+2*i,avg=(n*base+n*high)/(2*n);exam(4,i,'兩班各 '+n+' 人參加測驗。甲班平均 '+base+' 分，乙班平均 '+high+' 分，合併後平均多少分？',avg,'兩班人數相同，合併平均是兩平均數的平均。','('+base+'+'+high+')÷2='+avg+' 分。')}
+{let first=i+2,d=i+3,n=10,last=first+(n-1)*d,total=n*(first+last)/2;exam(5,i,'觀眾席第一排 '+first+' 個座位，每後一排多 '+d+' 個，若共有 10 排，總座位多少個？',total,'先算第十排，再求等差級數的和。','第十排 '+last+' 個，總數=10×('+first+'+'+last+')÷2='+total+'。')}
+{let base=25+i,per=8+i,x=7,price=base+x*per;exam(6,i,'計程車收費模型 y='+base+'+'+per+'x，其中 x 為行駛公里數。搭乘 7 公里應付多少元？',price,'把 x=7 代入一次函數。',base+'+'+per+'×7='+price+' 元。')}
+{let top=35+5*i,base=60+3*i,outer=top+base;exam(7,i,'某三角形兩個不相鄰內角分別為 '+top+'° 與 '+base+'°，另一頂點的外角為多少度？',outer,'外角等於另外兩個內角的和。',top+'+'+base+'='+outer+'°。')}
+{let upper=7+i,lower=15+i,mid=(upper+lower)/2;exam(8,i,'公園一座梯形花壇，上底 '+upper+' 公尺、下底 '+lower+' 公尺。連接兩腰中點的步道長多少公尺？',mid,'梯形中線=(上底+下底)÷2。','('+upper+'+'+lower+')÷2='+mid+' 公尺。')}
+}
+
 if(bank.some((b,i)=>{if(b.length!==20)throw Error("章節 "+i+" 只有 "+b.length+" 題");return false})){}
-let state={done:{},wrong:{}};try{state=Object.assign(state,JSON.parse(localStorage.getItem("math-year-v2")||"{}"))}catch{}
+let state={done:{},wrong:{}};try{state=Object.assign(state,JSON.parse(localStorage.getItem("math-year-v3")||"{}"))}catch{}
 let unit=0,index=0,selected=null,submitted=false,showReview=false,feedback="";
 const $=id=>document.getElementById(id),escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function save(){try{localStorage.setItem("math-year-v1",JSON.stringify(state))}catch{}}
@@ -67,7 +86,7 @@ function reset(){selected=null;submitted=false;feedback=""}
 function q(){return bank[unit][index]}
 function optionsFor(u,i){let opts=bank[u][i].options.slice(),seed=(u+1)*100+i+3;for(let j=opts.length-1;j>0;j--){seed=(seed*1664525+1013904223)>>>0;let k=seed%(j+1);[opts[j],opts[k]]=[opts[k],opts[j]]}return opts}
 function stats(u){let done=bank[u].filter((_,i)=>state.done[id(u,i)]).length,correct=bank[u].filter((_,i)=>state.done[id(u,i)]==="correct").length;return [done,correct,20-done]}
-function render(){nav();if(showReview){renderReview();return}let u=units[unit],p=stats(unit),qq=q(),opts=optionsFor(unit,index),stage=index<8?"中等":index<15?"中高":"挑戰";let pick=selected;
+function render(){nav();if(showReview){renderReview();return}let u=units[unit],p=stats(unit),qq=q(),opts=optionsFor(unit,index),stage=index<8?"中等":index<15?"中高":"段考／會考應用";let pick=selected;
 $("content").innerHTML='<div class="stage">'+u[0]+' · 第 '+(unit+1)+' 章</div><h2>'+escapeHTML(u[1])+'</h2><p class="muted">'+escapeHTML(u[2])+'</p><section class="overview"><h3>🧭 單元大綱：先了解這章在做什麼</h3><p><b>🌱 這章在學什麼？</b><br>'+escapeHTML(outlines[unit][0])+'</p><p><b>🏡 生活中的例子</b><br>'+escapeHTML(outlines[unit][1])+'</p><p><b>🪜 學習路線</b><br>'+escapeHTML(outlines[unit][2])+'</p><p><b>🎯 學完會做到</b><br>'+escapeHTML(outlines[unit][3])+'</p><p class="muted" style="font-size:13px">先看懂大綱，再往下讀觀念與範例，最後完成本章 20 題練習。</p></section><div class="lesson"><strong>📖 觀念教學</strong><div class="formula">'+escapeHTML(u[3])+'</div><ol>'+u[4].map(x=>'<li>'+escapeHTML(x)+'</li>').join("")+'</ol></div><div class="examples"><b>✏️ 範例</b>'+u[5].map(x=>'<div>'+escapeHTML(x)+'</div>').join("")+'</div><div class="metrics"><div class="metric">已練習<b>'+p[0]+'/20</b></div><div class="metric">答對<b>'+p[1]+'</b></div><div class="metric">尚未練習<b>'+p[2]+'</b></div></div><div class="progress"><div style="width:'+(p[0]*5)+'%"></div></div><hr style="border:0;border-top:1px solid #e4edf4;margin:20px 0"><div class="stage">第 '+(index+1)+'/20 題 · '+stage+'</div><div class="question">'+escapeHTML(qq.q)+'</div><div class="choices">'+opts.map((o,j)=>'<button class="choice '+(pick===o?"selected ":"")+(submitted?(o===qq.a?"correct":pick===o?"incorrect":""):"")+'" data-opt="'+j+'" '+(submitted?'disabled':'')+'>'+String.fromCharCode(65+j)+'. '+escapeHTML(o)+'</button>').join("")+'</div><div class="buttons"><button class="button" id="check" '+(submitted||selected===null?"disabled":"")+' >確認答案</button><button class="button alt" id="hint">提示</button><button class="button alt" id="solution">看詳解</button></div><div id="feedback" aria-live="polite"></div><div class="buttons"><button class="button alt" id="previous" '+(index===0?"disabled":"")+'>← 上一題</button><button class="button" id="next">'+(index===19?"下一章 →":"下一題 →")+'</button></div><p class="muted" style="font-size:12px">提示和詳解不會替你作答；答題結果會記錄在本機。</p>';
 document.querySelectorAll("[data-opt]").forEach(b=>b.onclick=()=>{selected=opts[Number(b.dataset.opt)];render()});
 $("check").onclick=()=>{if(selected===null)return;submitted=true;let key=id(unit,index),right=selected===qq.a;state.done[key]=right?"correct":"wrong";if(right)delete state.wrong[key];else state.wrong[key]=true;save();feedback=(right?"✅ 答對了！":"再試著理解這題：正確答案為 "+qq.a+"。")+"<br>"+qq.why;render()};
